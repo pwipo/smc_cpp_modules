@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/cmake-build-debug/
+/cmake-build-release-visual-studio-32/
+/.idea/
+/cmake-build-release-visual-studio-64/

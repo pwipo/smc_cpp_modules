@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.12)
+project(SMCExample)
+
+set(CMAKE_CXX_STANDARD 17)
+set(BUILD_ARCH "-m64")
+
+set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+
+include_directories(api)
+link_libraries(${CMAKE_CURRENT_SOURCE_DIR}/api/ModuleLoaderProviderWindows_X86_64.dll)
+
+add_library(Example SHARED Test.cpp Test.h)
+
+add_custom_target(Example_SMCM)
+
+add_custom_command(
+        TARGET Example_SMCM
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+        COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/Example.dll"
+)
