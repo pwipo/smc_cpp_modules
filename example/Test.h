@@ -5,11 +5,11 @@
 #ifndef SMCMODULES_TEST_H
 #define SMCMODULES_TEST_H
 
-#include "SMCAPI.h"
+#include "SMCApi.h"
 #include <iostream>
 #include <sstream>
 
-using namespace SMCAPI;
+using namespace SMCApi;
 
 class Test : public IMethod {
     long counter;

@@ -63,7 +63,7 @@ void Test::process(IConfigurationTool *configurationTool, IExecutionContextTool 
     for (long i = 0; i < countManagedExecutionContexts; ++i) {
         std::vector<IValue *> params;
         params.push_back(factory->createData(param));
-        CommandType type = SMCAPI::CommandType::COMMAND_EXECUTE;
+        CommandType type = SMCApi::CommandType::COMMAND_EXECUTE;
         executionContextTool->getFlowControlTool()->executeNow(type, i, &params);
         auto actions = executionContextTool->getFlowControlTool()->getMessagesFromExecuted(i);
         for (IAction *action: *actions) {
