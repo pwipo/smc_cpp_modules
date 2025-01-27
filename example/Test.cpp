@@ -4,12 +4,16 @@
 
 #include <codecvt>
 #include "Test.h"
+#include <locale>
+#include <memory>
 
 void Test::start(IConfigurationTool *tool, IValueFactory *factory) {
     // get settings
+    //std::cout << "Test START" << std::endl;
     value = *tool->getConfiguration()->getSetting(L"value")->getValueString();
     param = *tool->getConfiguration()->getSetting(L"param")->getValueString();
     counter = 1;
+    //std::cout << "Test END" << std::endl;
 
     // reed file from home folder
     fileTextValue = L"";
@@ -34,6 +38,9 @@ void Test::start(IConfigurationTool *tool, IValueFactory *factory) {
             std::wstring_convert<convert_type> converter;
             //use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
             fileTextValue = converter.from_bytes(t_str);
+            // std::wcout << fileTextValue.c_str();
+            // std::cout << std::endl;
+            break;
         }
     }
     if (fileTextValue.empty()) {

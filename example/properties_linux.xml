@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties>
+
+    <uuid>ExampleCpp</uuid>
+    <provider>cpp</provider>
+    <ver>1.1.1</ver>
+    <apiVer>1.4.0</apiVer>
+    <author>Nikolay V. Ulyanov</author>
+    <contacts>ulianownv@mail.ru</contacts>
+    <homePage>http://www.smcsystem.ru</homePage>
+    <os>LINUX</os>
+    <arch>X86_64</arch>
+    <className>libExample.so::getInstance</className>
+    <categories>Cpp, Example</categories>
+    <copyrightAndLicense>
+        <entry>
+            <key>en</key>
+            <value><![CDATA[The author and copyright holder is Nikolay V. Ulyanov.
+The program is free for use.
+Forbidden: changing the program code, its sale / resale, as well as other actions and rights not explicitly permitted.
+The program is supplied as is. For problems arising during the operation or installation of the program, the author, developer and distributor are not responsible.
+            ]]></value>
+        </entry>
+        <entry>
+            <key>ru</key>
+            <value><![CDATA[Автором и правообладателем является Ульянов Николай Владимирович.
+Программа бесплатна для использования.
+Запрещено: изменение кода программы, её продажа/перепродажа а так же иные не разрешенные явно действия и права.
+Программа поставляется как есть. За проблемы, возникающие в процессе эксплуатации или установки программы, автор, разработчик и распространитель ответственности не несут.
+            ]]></value>
+        </entry>
+    </copyrightAndLicense>
+    <date>04-06-2024</date>
+
+    <defaultSettings>
+        <value>
+            <name>value</name>
+            <type>STRING</type>
+            <value>Hello world</value>
+            <subType>STRING</subType>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Значение будет возвращаться при каждом выполнении модуля.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>The value will be returned each time the module is executed.</value>
+                </entry>
+            </description>
+        </value>
+        <value>
+            <name>param</name>
+            <type>STRING</type>
+            <value>test value</value>
+            <subType>STRING</subType>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Значение будет передаваться как аргумент при вызове управляемых контекстов исполнения.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>The value will be passed as an argument when invoking managed execution contexts</value>
+                </entry>
+            </description>
+        </value>
+    </defaultSettings>
+
+    <types>
+        <type t="default" minS="0" maxS="-1" minEC="0" maxEC="-1" minC="0" maxC="-1">
+            <description>
+                <entry k="ru" v="Контекст исполнения по умолчанию."/>
+                <entry k="en" v="Default execution context."/>
+            </description>
+            <sources>
+                <source>
+                    <count>-1</count>
+                    <elements>
+                        <element vt="VALUE_ANY" c="-1" t="INTEGER" v="1"/>
+                    </elements>
+                </source>
+            </sources>
+            <output>
+                <element>
+                    <type>VALUE</type>
+                    <count>1</count>
+                    <valueType>INTEGER</valueType>
+                    <value>1</value>
+                    <description>
+                        <entry>
+                            <key>ru</key>
+                            <value>Счетчик вызовов.</value>
+                        </entry>
+                        <entry k="en" v="Call counter."/>
+                    </description>
+                </element>
+                <element vt="VALUE" c="1" t="STRING" v="value"/>
+                <element>
+                    <type>VALUE</type>
+                    <count>1</count>
+                    <valueType>STRING</valueType>
+                    <value>fileTextValue</value>
+                </element>
+                <element vt="VALUE_ANY" c="-1" t="INTEGER" v="1"/>
+            </output>
+        </type>
+    </types>
+
+    <useStorage>false</useStorage>
+    <threadSafe>true</threadSafe>
+
+    <description>
+        <entry>
+            <key>en</key>
+            <value>Module example.</value>
+        </entry>
+        <entry>
+            <key>ru</key>
+            <value>Пример модуля.</value>
+        </entry>
+    </description>
+
+    <help>
+        <entry>
+            <key>en</key>
+            <value><![CDATA[Example module.
+Shows how to perform basic operations:
+    prints the call counter.
+    gets the setting value at startup and prints this value on each execution.
+    reads a text file in the home folder at startup and prints it as text at each execution.
+    receives data from sources and prints it.
+    starts managed execution contexts with parameter passing (setting: param), if contexts return data, then print it.
+    prints the names of the managed configurations.
+    on each call, creates a new configuration of a random type and inserts it into the first execution context of the first managed configuration (if possible, into each of those list types).
+            ]]></value>
+        </entry>
+        <entry>
+            <key>ru</key>
+            <value><![CDATA[Пример модуля.
+Показывает, как выполнять основные операции:
+    печатает счетчтик вызовов.
+    получает значение настройки при старте и печатает это значение при каждом исполнении.
+    читает текстовый файл в домашней папке при старте и печатает его при каждом исполнении в виде текста.
+    полученает данные от источников и печатает их.
+    запускает управляемые контексты исполнения с передачей параметра (настройка: param), если контексты возвращают данные, то печатает их.
+    печатает имена управляемых конфигураций.
+    при каждом вызове создает новую конфигурацию случайного типа и вставляет её в первый контекст исполнения первой управляемой конфигурации (если возможно, в каждый из тех типов списков).
+            ]]></value>
+        </entry>
+    </help>
+
+    <examples>
+        <example>
+            <description>
+                <entry>
+                    <key>en</key>
+                    <value>First example.</value>
+                </entry>
+                <entry>
+                    <key>ru</key>
+                    <value>Первый пример.</value>
+                </entry>
+            </description>
+            <settings/>
+            <variables/>
+            <sources/>
+            <output>
+                <message t="INTEGER" v="1"/>
+                <message t="STRING" v="Hello world"/>
+                <message t="STRING" v="test message"/>
+            </output>
+            <countManagedExecutionContexts>0</countManagedExecutionContexts>
+            <countManagedConfigurations>0</countManagedConfigurations>
+        </example>
+        <example>
+            <description>
+                <entry>
+                    <key>en</key>
+                    <value>Second example. Connected source, managed execution context (returns value: 5), and managed configuration (name: test).
+                    </value>
+                </entry>
+                <entry>
+                    <key>ru</key>
+                    <value>Второй пример. Подключены источник, управляемый контекст исполнения (возвращает значение: 5) и управляемая конфтгурация
+                        (имя: test).
+                    </value>
+                </entry>
+            </description>
+            <settings/>
+            <variables/>
+            <sources>
+                <source>
+                    <actions>
+                        <action>
+                            <messages>
+                                <message>
+                                    <type>INTEGER</type>
+                                    <value>1</value>
+                                </message>
+                                <message>
+                                    <type>STRING</type>
+                                    <value>text</value>
+                                </message>
+                            </messages>
+                        </action>
+                    </actions>
+                </source>
+            </sources>
+            <output>
+                <message t="INTEGER" v="1"/>
+                <message t="STRING" v="Hello world"/>
+                <message t="STRING" v="test message"/>
+                <message t="INTEGER" v="1"/>
+                <message t="STRING" v="text"/>
+                <message t="INTEGER" v="5"/>
+                <message t="STRING" v="test"/>
+            </output>
+            <countManagedExecutionContexts>1</countManagedExecutionContexts>
+            <countManagedConfigurations>1</countManagedConfigurations>
+        </example>
+    </examples>
+    <icon><![CDATA[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]]></icon>
+
+</properties>

@@ -34,7 +34,11 @@ public:
 extern "C" {
 #endif
 
+#ifdef _WIN32
 __declspec(dllexport) IMethod *getInstance();
+#else
+__attribute__((visibility("default"))) IMethod *getInstance();
+#endif
 
 #ifdef __cplusplus
 }
