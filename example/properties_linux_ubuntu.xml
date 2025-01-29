@@ -8,7 +8,7 @@
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>
     <homePage>http://www.smcsystem.ru</homePage>
-    <os>LINUX_RHEL</os>
+    <os>LINUX_UBUNTU</os>
     <arch>X86_64</arch>
     <className>libExample.so::getInstance</className>
     <categories>Cpp, Example</categories>

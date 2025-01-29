@@ -23,9 +23,10 @@ install(TARGETS TestModule EXPORT TestModuleSMCM
 
 add_custom_target(Example_SMCM)
 
-if($ENV{_WIN64})
+add_library(Example SHARED Test.cpp Test.h)
+
+if ($ENV{_WIN64})
     message("arch:" "_WIN64")
-    add_library(Example SHARED Test.cpp Test.h)
     add_custom_command(
             TARGET Example_SMCM
             #        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets/video ${CMAKE_CURRENT_BINARY_DIR}/video
@@ -38,31 +39,37 @@ if($ENV{_WIN64})
             #        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/smcm
             #        COMMAND ${CMAKE_COMMAND} -E rename  ${CMAKE_CURRENT_BINARY_DIR}/data.zip ${CMAKE_CURRENT_BINARY_DIR}/cppTest.smcm
     )
-elseif($ENV{_WIN32})
+elseif ($ENV{_WIN32})
     message("arch:" "_WIN32")
-    add_library(Example SHARED Test.cpp Test.h)
     add_custom_command(
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/Example.dll"
     )
-elseif($ENV{_LINUX32})
-    message("arch:" "_LINUX32")
-    add_library(Example SHARED Test.cpp Test.h SMCApi.cpp SMCApi.h)
+elseif ($ENV{_LINUX_DEBIAN})
+    message("arch:" "_LINUX_DEBIAN")
+    add_custom_command(
+            TARGET Example_SMCM
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux_debian.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+            COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
+    )
+elseif ($ENV{_LINUX_UBUNTU})
+    message("arch:" "_LINUX_UBUNTU")
+    add_custom_command(
+            TARGET Example_SMCM
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux_ubuntu.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+            COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
+    )
+else ()
+    message("arch:" "_LINUX")
     add_custom_command(
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
-elseif($ENV{_LINUX64})
-    message("arch:" "_LINUX32")
-    add_library(Example SHARED Test.cpp Test.h SMCApi.cpp SMCApi.h)
-    add_custom_command(
-            TARGET Example_SMCM
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
-            COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
-    )
-endif()
+endif ()
+
