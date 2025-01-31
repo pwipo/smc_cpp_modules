@@ -53,6 +53,7 @@ elseif ($ENV{_LINUX_DEBIAN})
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux_debian.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+#            COMMAND ${CMAKE_COMMAND} -E make_directory "for_debian"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
 elseif ($ENV{_LINUX_UBUNTU})
@@ -61,6 +62,7 @@ elseif ($ENV{_LINUX_UBUNTU})
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux_ubuntu.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+#            COMMAND ${CMAKE_COMMAND} -E make_directory "for_ubuntu"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
 else ()
@@ -69,6 +71,7 @@ else ()
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
+#            COMMAND ${CMAKE_COMMAND} -E make_directory "for_centos"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
 endif ()
