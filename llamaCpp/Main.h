@@ -30,7 +30,7 @@ class MainCls : public IMethod {
     llama_model* model;
     llama_context* ctx;
     llama_vocab* vocab;
-    llama_sampler* _sampler;
+    llama_sampler* sampler;
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converterTo;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converterFrom;
@@ -45,8 +45,6 @@ public:
     void update(IConfigurationTool* tool, IValueFactory* factory) override;
 
     void stop(IConfigurationTool* tool, IValueFactory* factory) override;
-
-    void addChatMessage(std::vector<llama_chat_message>& messages, const std::string& message, const std::string& role);
 
     std::string generate(IConfigurationTool* tool, const std::string& prompt);
 

@@ -26,14 +26,14 @@ if ($ENV{_WIN64})
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-base.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.dll"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml.dll"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-cpu.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.dll"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-rpc.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
+#            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-rpc.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${TARGET_MAIN}.smcm" --format=zip --
             "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             "${CMAKE_CURRENT_BINARY_DIR}/llama.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.dll"
-            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
+#            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_MAIN}.dll"
     )
 elseif ($ENV{_LINUX64})
@@ -49,14 +49,14 @@ elseif ($ENV{_LINUX64})
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/ggml-base.so" "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.so"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/ggml.so" "${CMAKE_CURRENT_BINARY_DIR}/ggml.so"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/ggml-cpu.so" "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.so"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/ggml-rpc.so" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.so"
+#            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/ggml-rpc.so" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.so"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${TARGET_MAIN}.smcm" --format=zip --
             "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             "${CMAKE_CURRENT_BINARY_DIR}/llama.so"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.so"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml.so"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.so"
-            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.so"
+#            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.so"
             "${CMAKE_CURRENT_BINARY_DIR}/lib${TARGET_MAIN}.so"
     )
 endif ()
