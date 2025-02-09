@@ -12,11 +12,11 @@ Prepare and Compile:
 
     Start Visual Studio Command prompt
     cd modules_pub
-    check exist lib ../SMCModuleDefinitionProvider/cmake-build-release-visual-studio-64/ModuleLoaderProviderLINUX64.lib
-    set _WIN64=1
-    cmake -A x64 -S . -B WIN64
-    cmake --build WIN64 --target Example
-    copy WIN64\example\Debug\Example.dll WIN64\example\Example.dll
+    --check exist lib ../SMCModuleDefinitionProvider/cmake-build-release-visual-studio-64/ModuleLoaderProviderLINUX64.lib
+    mkdir WIN64
+    cmake -B WIN64 -D_WIN64=ON -A x64 -S . 
+    cmake --build WIN64 --config Release --target Example
+    copy WIN64\example\Release\Example.dll WIN64\example\Example.dll
     cmake --build WIN64 --target Example_SMCM
     copy WIN64\example\ExampleCpp.smcm WIN64\ExampleCpp.smcm
 
@@ -39,12 +39,9 @@ Debian(Ubuntu):
 Prepare and Compile:
     
     cd modules_pub
-    check exist lib ../SMCModuleDefinitionProvider/Linux64/ModuleLoaderProviderLINUX64.so
-    mkdir build
-    cd build
-    #rm -r *
-    _LINUX64=1 cmake ..
-    make Example
-    make Example_SMCM
-    mkdir ../Linux64
-    cp example/ExampleCpp.smcm ../Linux64/for_centos/ExampleCpp.smcm
+    --check exist lib ../SMCModuleDefinitionProvider/Linux64/ModuleLoaderProviderLINUX64.so
+    mkdir Linux64
+    cmake -B build -D_LINUX64=ON ..
+    cmake --build Linux64 --target Example          #or: make Example
+    cmake --build Linux64 --target Example_SMCM     #or: make Example_SMCM
+    cp Linux64/example/ExampleCpp.smcm Linux64/for_centos/ExampleCpp.smcm

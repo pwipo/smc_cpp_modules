@@ -25,7 +25,7 @@ add_custom_target(Example_SMCM)
 
 add_library(Example SHARED Test.cpp Test.h)
 
-if ($ENV{_WIN64})
+if (_WIN64)
     message("arch:" "_WIN64")
     add_custom_command(
             TARGET Example_SMCM
@@ -39,7 +39,7 @@ if ($ENV{_WIN64})
             #        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/smcm
             #        COMMAND ${CMAKE_COMMAND} -E rename  ${CMAKE_CURRENT_BINARY_DIR}/data.zip ${CMAKE_CURRENT_BINARY_DIR}/cppTest.smcm
     )
-elseif ($ENV{_WIN32})
+elseif (_WIN32)
     message("arch:" "_WIN32")
     add_custom_command(
             TARGET Example_SMCM
@@ -47,7 +47,7 @@ elseif ($ENV{_WIN32})
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/Example.dll"
     )
-elseif ($ENV{_LINUX64})
+elseif (_LINUX64)
     message("arch:" "_LINUX64")
     add_custom_command(
             TARGET Example_SMCM
@@ -56,7 +56,7 @@ elseif ($ENV{_LINUX64})
             #            COMMAND ${CMAKE_COMMAND} -E make_directory "for_centos"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
-elseif ($ENV{_LINUX32})
+elseif (_LINUX32)
     message("arch:" "_LINUX32")
     add_custom_command(
             TARGET Example_SMCM
