@@ -2,10 +2,22 @@
 // Created by pwipo on 08.11.2019.
 //
 
-#include <codecvt>
 #include "Main.h"
-#include <locale>
-#include <memory>
+
+#ifndef _strdup
+char* _strdup(const char* c) {
+    if (c == nullptr)
+        return nullptr;
+    // size_t n = strlen(c);
+    // char* buffer = (char*)calloc(n + 1, sizeof(char));
+    // if (buffer != nullptr)
+    //     strncpy(buffer, c, n);
+    char* buffer = (char*)malloc(strlen(c) + 1);
+    if (buffer != nullptr)
+        strcpy(buffer, c);
+    return buffer;
+}
+#endif
 
 void addChatMessage(std::vector<llama_chat_message>& messages, const std::string& message, const std::string& role) {
     messages.push_back({_strdup(role.c_str()), _strdup(message.c_str())});

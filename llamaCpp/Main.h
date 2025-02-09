@@ -9,6 +9,11 @@
 #include <iostream>
 #include <sstream>
 #include "llama.h"
+#include <codecvt>
+#include <locale>
+#include <memory>
+#include <string>
+#include <cstring>
 
 using namespace SMCApi;
 

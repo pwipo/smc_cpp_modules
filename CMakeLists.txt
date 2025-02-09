@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(smcmodules_pub)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 #set(BUILD_ARCH "-m64")
 #set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 #set_property(GLOBAL PROPERTY PREFIX "")

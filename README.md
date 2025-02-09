@@ -13,12 +13,12 @@ Prepare and Compile:
     Start Visual Studio Command prompt
     cd modules_pub
     --check exist lib ../SMCModuleDefinitionProvider/cmake-build-release-visual-studio-64/ModuleLoaderProviderLINUX64.lib
-    mkdir WIN64
-    cmake -D_WIN64=ON -A x64 -S . -B WIN64
-    cmake --build WIN64 --target Example
-    copy WIN64\example\Release\Example.dll WIN64\example\Example.dll
-    cmake --build WIN64 --target Example_SMCM
-    copy WIN64\example\ExampleCpp.smcm WIN64\ExampleCpp.smcm
+    mkdir build
+    cmake -D_WIN64=ON -A x64 -S . -B build
+    cmake --build build --target Example
+    copy build\example\Release\Example.dll WIN64\example\Example.dll
+    cmake --build build --target Example_SMCM
+    copy build\example\ExampleCpp.smcm WIN64\ExampleCpp.smcm
 
 
 # Linux installation
@@ -40,8 +40,8 @@ Prepare and Compile:
     
     cd modules_pub
     --check exist lib ../SMCModuleDefinitionProvider/Linux64/ModuleLoaderProviderLINUX64.so
-    mkdir Linux64
+    mkdir build
     cmake -B build -D_LINUX64=ON ..
-    cmake --build Linux64 --config Release --target Example          #or: make Example
-    cmake --build Linux64 --target Example_SMCM     #or: make Example_SMCM
-    cp Linux64/example/ExampleCpp.smcm Linux64/for_centos/ExampleCpp.smcm
+    cmake --build build --config Release --target Example          #or: make Example
+    cmake --build build --target Example_SMCM     #or: make Example_SMCM
+    cp build/example/ExampleCpp.smcm Linux64/for_centos/ExampleCpp.smcm
