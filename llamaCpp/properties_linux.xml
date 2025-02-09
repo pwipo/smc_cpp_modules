@@ -108,6 +108,21 @@ The program is supplied as is. For problems arising during the operation or inst
                 </entry>
             </description>
         </value>
+        <value>
+            <name>nBatch</name>
+            <type>INTEGER</type>
+            <value>0</value>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Логический максимальный размер пакета, который можно отправить в llama_decode.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>Logical maximum batch size that can be submitted to llama_decode.</value>
+                </entry>
+            </description>
+        </value>
     </defaultSettings>
 
     <types>

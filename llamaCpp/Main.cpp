@@ -19,6 +19,7 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     minP = tool->getConfiguration()->getSetting(L"minP")->getValueNumber()->floatValue();
     contextSize = tool->getConfiguration()->getSetting(L"contextSize")->getValueNumber()->intValue();
     ngl = tool->getConfiguration()->getSetting(L"ngl")->getValueNumber()->intValue();
+    nBatch = tool->getConfiguration()->getSetting(L"nBatch")->getValueNumber()->intValue();
     // tool->loggerTrace(L"stop get settings");
 
     // tool->loggerTrace(L"initialize the model");
@@ -45,7 +46,7 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     // tool->loggerTrace(L"initialize the context");
     llama_context_params ctx_params = llama_context_default_params();
     ctx_params.n_ctx = contextSize;
-    ctx_params.n_batch = contextSize;
+    ctx_params.n_batch = nBatch;
 
     ctx = llama_init_from_model(model, ctx_params);
     if (!ctx) {
@@ -173,11 +174,13 @@ std::string MainCls::generate(IConfigurationTool* tool, const std::string& promp
     llama_token new_token_id;
     while (true) {
         // check if we have enough space in the context to evaluate this batch
-        int n_ctx = llama_n_ctx(ctx);
+        unsigned long n_ctx = llama_n_ctx(ctx);
+        unsigned long n_batch = llama_n_batch(ctx);
         int n_ctx_used = llama_get_kv_cache_used_cells(ctx);
-        if (n_ctx_used + batch.n_tokens > n_ctx) {
-            std::string errMsg = "context size exceeded";
-            tool->loggerWarn(converterFrom.from_bytes(errMsg));
+        if (n_ctx_used + batch.n_tokens > n_ctx || batch.n_tokens > n_batch) {
+            tool->loggerWarn(
+                L"context size exceeded: n_ctx=" + std::to_wstring(n_ctx) + L" n_tokens=" + std::to_wstring(batch.n_tokens) + L" n_prompt_tokens=" +
+                std::to_wstring(n_prompt_tokens) + L" n_batch=" + std::to_wstring(n_batch) + L" n_ctx_used=" + std::to_wstring(n_ctx_used));
             return response;
         }
 
@@ -219,8 +222,9 @@ MainCls::MainCls() {
     minP = 0.;
     contextSize = 0;
     ngl = 0;
+    nBatch = 0;
 
-    // model = nullptr;
+    model = nullptr;
     // ctx = nullptr;
     // vocab = nullptr;
     // sampler = nullptr;

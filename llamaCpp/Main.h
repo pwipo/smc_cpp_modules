@@ -26,6 +26,7 @@ class MainCls : public IMethod {
     float minP;
     int contextSize;
     int ngl;
+    int nBatch;
 
     llama_model* model;
     llama_context* ctx;
