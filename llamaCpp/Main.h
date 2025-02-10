@@ -33,11 +33,13 @@ class MainCls : public IMethod {
     int ngl;
     int nBatch;
     int nThreds;
+    bool flashAttn;
 
     llama_model* model;
     llama_context* ctx;
     llama_vocab* vocab;
     llama_sampler* sampler;
+    int prev_len;
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converterTo;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converterFrom;

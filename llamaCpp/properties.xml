@@ -2,7 +2,7 @@
 <properties>
     <uuid>LlamaCpp</uuid>
     <provider>cpp</provider>
-    <ver>1.0.0</ver>
+    <ver>1.0.1</ver>
     <apiVer>1.4.1</apiVer>
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>
@@ -138,6 +138,21 @@ The program is supplied as is. For problems arising during the operation or inst
                 </entry>
             </description>
         </value>
+        <value>
+            <name>flashAttn</name>
+            <type>BOOLEAN</type>
+            <value>true</value>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Использовать ли мгновенное внимание.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>Whether to use flash attention.</value>
+                </entry>
+            </description>
+        </value>
     </defaultSettings>
 
     <types>
@@ -179,6 +194,18 @@ Returns the response as an array of objects with one object. Role - assistant.
                     <value><![CDATA[[{"role":"assistant","content":"Hello world!"}]]]></value>
                 </element>
             </output>
+        </type>
+        <type t="clean">
+            <description>
+                <entry k="ru">
+                    <value>Очищает контекст (память) сети.</value>
+                </entry>
+                <entry k="en">
+                    <value>Clears the network context (memory).</value>
+                </entry>
+            </description>
+            <sources/>
+            <output/>
         </type>
     </types>
 

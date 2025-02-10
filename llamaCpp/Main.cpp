@@ -33,6 +33,7 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     ngl = tool->getConfiguration()->getSetting(L"ngl")->getValueNumber()->intValue();
     nBatch = tool->getConfiguration()->getSetting(L"nBatch")->getValueNumber()->intValue();
     nThreds = tool->getConfiguration()->getSetting(L"nThreds")->getValueNumber()->intValue();
+    flashAttn = tool->getConfiguration()->getSetting(L"flashAttn")->getValueBoolean();
     // tool->loggerTrace(L"stop get settings");
 
     // tool->loggerTrace(L"initialize the model");
@@ -62,6 +63,7 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     ctx_params.n_batch = nBatch;
     ctx_params.n_threads = nThreds;
     ctx_params.n_threads_batch = nThreds;
+    ctx_params.flash_attn = flashAttn;
 
     ctx = llama_init_from_model(model, ctx_params);
     if (!ctx) {
@@ -75,67 +77,82 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     llama_sampler_chain_add(sampler, llama_sampler_init_min_p(minP, 1));
     llama_sampler_chain_add(sampler, llama_sampler_init_temp(temperature));
     llama_sampler_chain_add(sampler, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
+    prev_len = 0;
 }
 
 void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory) {
     // configurationTool->loggerTrace(L"start process");
     try {
-        for (long i = 0; i < executionContextTool->getExecutionContext()->countSource(); ++i) {
-            auto actions = executionContextTool->getMessages(i);
-            for (IAction* action : *actions) {
-                std::vector<llama_chat_message> messages;
-                std::vector<char> formatted(llama_n_ctx(ctx));
-                int prev_len = 0;
-                // configurationTool->loggerTrace(L"start new processing, count messages=" + std::to_wstring(action->getMessages()->size()));
-                for (IMessage* message : *action->getMessages()) {
-                    if (message->getType() == VT_STRING) {
-                        addChatMessage(messages, converterTo.to_bytes(*message->getValueString()), "user");
-                    }
-                    else if (message->getType() == VT_OBJECT_ARRAY) {
-                        ObjectArray* objectArray = message->getValueObjectArray();
-                        if (objectArray->getType() != OT_OBJECT_ELEMENT || objectArray->size() == 0)
-                            continue;
-                        for (int j = 0; j < objectArray->size(); j++) {
-                            auto* o = (ObjectElement*)objectArray->get(j);
-                            auto fRole = o->findField(L"role");
-                            auto fContent = o->findField(L"content");
-                            if (fRole && fRole->getType() == OT_STRING && fContent && fContent->getType() == OT_STRING)
-                                addChatMessage(messages, converterTo.to_bytes(*fContent->getValueString()), converterTo.to_bytes(*fRole->getValueString()));
+        if (executionContextTool->getExecutionContext()->getType() == L"default") {
+            for (long i = 0; i < executionContextTool->getExecutionContext()->countSource(); ++i) {
+                auto actions = executionContextTool->getMessages(i);
+                for (IAction* action : *actions) {
+                    std::vector<llama_chat_message> messages;
+                    std::vector<char> formatted(llama_n_ctx(ctx));
+                    try {
+                        // configurationTool->loggerTrace(L"start new processing, count messages=" + std::to_wstring(action->getMessages()->size()));
+                        for (IMessage* message : *action->getMessages()) {
+                            if (message->getType() == VT_STRING) {
+                                addChatMessage(messages, converterTo.to_bytes(*message->getValueString()), "user");
+                            }
+                            else if (message->getType() == VT_OBJECT_ARRAY) {
+                                ObjectArray* objectArray = message->getValueObjectArray();
+                                if (objectArray->getType() != OT_OBJECT_ELEMENT || objectArray->size() == 0)
+                                    continue;
+                                for (int j = 0; j < objectArray->size(); j++) {
+                                    auto* o = (ObjectElement*)objectArray->get(j);
+                                    auto fRole = o->findField(L"role");
+                                    auto fContent = o->findField(L"content");
+                                    if (fRole && fRole->getType() == OT_STRING && fContent && fContent->getType() == OT_STRING)
+                                        addChatMessage(messages, converterTo.to_bytes(*fContent->getValueString()), converterTo.to_bytes(*fRole->getValueString()));
+                                }
+                            }
                         }
+                        // configurationTool->loggerTrace(L"messages size=" + std::to_wstring(messages.size()));
+                        const char* tmpl = llama_model_chat_template(model, /* name */ nullptr);
+                        int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+                        if (new_len > (int)formatted.size()) {
+                            formatted.resize(new_len);
+                            new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+                        }
+                        if (new_len < 0)
+                            throw ModuleException(L"failed to apply the chat template");
+                        // configurationTool->loggerTrace(L"new_len=" + std::to_wstring(new_len));
+                        // remove previous messages to obtain the prompt to generate the response
+                        std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
+
+                        // configurationTool->loggerTrace(L"get request: " + converterFrom.from_bytes(prompt));
+                        std::string response = generate(configurationTool, prompt);
+
+                        prev_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), false, nullptr, 0);
+                        if (prev_len < 0)
+                            throw ModuleException(L"failed to apply the chat template");
+
+                        // configurationTool->loggerTrace(L"start create response");
+                        ObjectArray oa(OT_OBJECT_ELEMENT);
+                        auto* oe = new ObjectElement();
+                        // oe->getFields()->push_back(new ObjectField(L"value", new Number(100L)));
+                        oe->getFields()->push_back(new ObjectField(L"role", new std::wstring(L"assistant")));
+                        oe->getFields()->push_back(new ObjectField(L"content", new std::wstring(converterFrom.from_bytes(response))));
+                        oa.add(oe);
+                        executionContextTool->addMessage(factory->createData(&oa));
+                        // configurationTool->loggerTrace(L"send response: " + respnseW);
+                        // executionContextTool->addMessage(factory->createData(respnseW));
+                    }
+                    catch (std::exception& e) {
+                        for (llama_chat_message& message : messages) {
+                            delete message.content;
+                            delete message.role;
+                        }
+                        messages.clear();
+                        throw;
                     }
                 }
-                const char* tmpl = llama_model_chat_template(model, /* name */ nullptr);
-                int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
-                if (new_len > (int)formatted.size()) {
-                    formatted.resize(new_len);
-                    new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
-                }
-                if (new_len < 0)
-                    throw ModuleException(L"failed to apply the chat template");
-                // configurationTool->loggerTrace(L"new_len=" + std::to_wstring(new_len));
-                // remove previous messages to obtain the prompt to generate the response
-                std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
-
-                for (llama_chat_message& message : messages) {
-                    delete message.content;
-                    delete message.role;
-                }
-                messages.clear();
-                // configurationTool->loggerTrace(L"get request: " + converterFrom.from_bytes(prompt));
-
-                std::string response = generate(configurationTool, prompt);
-
-                // configurationTool->loggerTrace(L"start create response");
-                ObjectArray oa(OT_OBJECT_ELEMENT);
-                auto* oe = new ObjectElement();
-                // oe->getFields()->push_back(new ObjectField(L"value", new Number(100L)));
-                oe->getFields()->push_back(new ObjectField(L"role", new std::wstring(L"assistant")));
-                oe->getFields()->push_back(new ObjectField(L"content", new std::wstring(converterFrom.from_bytes(response))));
-                oa.add(oe);
-                executionContextTool->addMessage(factory->createData(&oa));
-                // configurationTool->loggerTrace(L"send response: " + respnseW);
-                // executionContextTool->addMessage(factory->createData(respnseW));
             }
+        }
+        else if (executionContextTool->getExecutionContext()->getType() == L"clean") {
+            llama_kv_cache_clear(ctx);
+            prev_len = 0;
         }
     }
     catch (ModuleException& e) {
@@ -145,13 +162,12 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
 }
 
 void MainCls::update(IConfigurationTool* tool, IValueFactory* factory) {
-    //std::wcout << "update " << tool->getName() << std::endl;
     stop(tool, factory);
     start(tool, factory);
 }
 
 void MainCls::stop(IConfigurationTool* tool, IValueFactory* factory) {
-    //std::wcout << "stop " << tool->getName() << std::endl;
+    prev_len = 0;
     if (ctx)
         llama_kv_cache_clear(ctx);
     if (sampler) {
@@ -173,7 +189,7 @@ void MainCls::stop(IConfigurationTool* tool, IValueFactory* factory) {
 }
 
 std::string MainCls::generate(IConfigurationTool* tool, const std::string& prompt) {
-    // tool->loggerTrace(L"start generate");
+    // tool->loggerTrace(L"start generate for prompt: " + std::to_wstring(prompt.size()));
     std::string response;
 
     const bool is_first = llama_get_kv_cache_used_cells(ctx) == 0;
@@ -199,6 +215,7 @@ std::string MainCls::generate(IConfigurationTool* tool, const std::string& promp
             return response;
         }
 
+        // tool->loggerTrace(L"run the model");
         if (llama_decode(ctx, batch))
             throw ModuleException(L"failed to decode");
 
