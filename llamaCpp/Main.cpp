@@ -32,6 +32,7 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     contextSize = tool->getConfiguration()->getSetting(L"contextSize")->getValueNumber()->intValue();
     ngl = tool->getConfiguration()->getSetting(L"ngl")->getValueNumber()->intValue();
     nBatch = tool->getConfiguration()->getSetting(L"nBatch")->getValueNumber()->intValue();
+    nThreds = tool->getConfiguration()->getSetting(L"nThreds")->getValueNumber()->intValue();
     // tool->loggerTrace(L"stop get settings");
 
     // tool->loggerTrace(L"initialize the model");
@@ -59,6 +60,8 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     llama_context_params ctx_params = llama_context_default_params();
     ctx_params.n_ctx = contextSize;
     ctx_params.n_batch = nBatch;
+    ctx_params.n_threads = nThreds;
+    ctx_params.n_threads_batch = nThreds;
 
     ctx = llama_init_from_model(model, ctx_params);
     if (!ctx) {

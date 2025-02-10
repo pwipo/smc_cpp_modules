@@ -81,22 +81,22 @@ The program is supplied as is. For problems arising during the operation or inst
         <value>
             <name>contextSize</name>
             <type>INTEGER</type>
-            <value>0</value>
+            <value>512</value>
             <description>
                 <entry>
                     <key>ru</key>
-                    <value>Размер контекста или максимальное количество токенов.</value>
+                    <value>Размер контекста или максимальное количество токенов. Если 0, то читается из модели.</value>
                 </entry>
                 <entry>
                     <key>en</key>
-                    <value>Context size or maximum number of tokens.</value>
+                    <value>Context size or maximum number of tokens. If 0, then read from the model.</value>
                 </entry>
             </description>
         </value>
         <value>
             <name>ngl</name>
             <type>INTEGER</type>
-            <value>99</value>
+            <value>0</value>
             <description>
                 <entry>
                     <key>ru</key>
@@ -111,7 +111,7 @@ The program is supplied as is. For problems arising during the operation or inst
         <value>
             <name>nBatch</name>
             <type>INTEGER</type>
-            <value>0</value>
+            <value>2048</value>
             <description>
                 <entry>
                     <key>ru</key>
@@ -120,6 +120,21 @@ The program is supplied as is. For problems arising during the operation or inst
                 <entry>
                     <key>en</key>
                     <value>Logical maximum batch size that can be submitted to llama_decode.</value>
+                </entry>
+            </description>
+        </value>
+        <value>
+            <name>nThreds</name>
+            <type>INTEGER</type>
+            <value>4</value>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Количество потоков, используемых для генерации.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>Number of threads to use for generation.</value>
                 </entry>
             </description>
         </value>

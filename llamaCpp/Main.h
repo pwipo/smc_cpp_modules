@@ -32,6 +32,7 @@ class MainCls : public IMethod {
     int contextSize;
     int ngl;
     int nBatch;
+    int nThreds;
 
     llama_model* model;
     llama_context* ctx;
