@@ -25,8 +25,7 @@ add_custom_target(Example_SMCM)
 
 add_library(Example SHARED Test.cpp Test.h)
 
-if (_WIN64)
-    message("arch:" "_WIN64")
+if (${BUILD_TYPE_EXT} STREQUAL "WIN64")
     add_custom_command(
             TARGET Example_SMCM
             #        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets/video ${CMAKE_CURRENT_BINARY_DIR}/video
@@ -39,16 +38,14 @@ if (_WIN64)
             #        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/smcm
             #        COMMAND ${CMAKE_COMMAND} -E rename  ${CMAKE_CURRENT_BINARY_DIR}/data.zip ${CMAKE_CURRENT_BINARY_DIR}/cppTest.smcm
     )
-elseif (_WIN32)
-    message("arch:" "_WIN32")
+elseif (${BUILD_TYPE_EXT} STREQUAL "WIN32")
     add_custom_command(
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/text.txt"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/Example.dll"
     )
-elseif (_LINUX64)
-    message("arch:" "_LINUX64")
+elseif (${BUILD_TYPE_EXT} STREQUAL "LINUX64")
     add_custom_command(
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
@@ -56,8 +53,7 @@ elseif (_LINUX64)
             #            COMMAND ${CMAKE_COMMAND} -E make_directory "for_centos"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "ExampleCpp.smcm" --format=zip -- "${CMAKE_CURRENT_BINARY_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/text.txt" "${CMAKE_CURRENT_BINARY_DIR}/libExample.so"
     )
-elseif (_LINUX32)
-    message("arch:" "_LINUX32")
+elseif (${BUILD_TYPE_EXT} STREQUAL "LINUX32")
     add_custom_command(
             TARGET Example_SMCM
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"

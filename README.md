@@ -14,7 +14,7 @@ Prepare and Compile:
     cd modules_pub
     --check exist lib ../SMCModuleDefinitionProvider/cmake-build-release-visual-studio-64/ModuleLoaderProviderLINUX64.lib
     mkdir build
-    cmake -D_WIN64=ON -A x64 -S . -B build
+    cmake -DBUILD_TYPE_EXT=WIN64 -A x64 -S . -B build
     cmake --build build --target Example
     copy build\example\Release\Example.dll WIN64\example\Example.dll
     cmake --build build --target Example_SMCM
@@ -41,7 +41,7 @@ Prepare and Compile:
     cd modules_pub
     --check exist lib ../SMCModuleDefinitionProvider/Linux64/ModuleLoaderProviderLINUX64.so
     mkdir build
-    cmake -B build -D_LINUX64=ON ..
+    cmake -B build -DBUILD_TYPE_EXT=LINUX64 ..
     cmake --build build --config Release --target Example          #or: make Example
     cmake --build build --target Example_SMCM     #or: make Example_SMCM
     cp build/example/ExampleCpp.smcm Linux64/for_centos/ExampleCpp.smcm

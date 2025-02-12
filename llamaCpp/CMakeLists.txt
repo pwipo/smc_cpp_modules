@@ -10,8 +10,7 @@ target_include_directories(${TARGET_MAIN} PRIVATE "lib/include" "lib/ggml/includ
 
 set(TARGET ${TARGET_MAIN}_SMCM)
 add_custom_target(${TARGET})
-if (_WIN64)
-    message("arch:" "_WIN64")
+if (${BUILD_TYPE_EXT} STREQUAL "WIN64")
     #    if (MSVC)
     #        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
     #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
@@ -38,8 +37,7 @@ if (_WIN64)
             #            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_MAIN}.dll"
     )
-elseif (_LINUX64)
-    message("arch:" "_LINUX64")
+elseif (${BUILD_TYPE_EXT} STREQUAL "LINUX64")
     target_link_libraries(${TARGET_MAIN} PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libllama.so
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml-base.so
