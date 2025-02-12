@@ -14,6 +14,8 @@
 #include <memory>
 #include <string>
 #include <cstring>
+#include <thread>
+#include <map>
 
 using namespace SMCApi;
 
@@ -24,6 +26,11 @@ inline wchar_t separator() {
     return L'/';
 #endif
 }
+
+struct LlamaContextHolder {
+    llama_context* ctx;
+    int prev_len;
+};
 
 class MainCls : public IMethod {
     std::wstring modelPath;
@@ -36,13 +43,17 @@ class MainCls : public IMethod {
     bool flashAttn;
 
     llama_model* model;
-    llama_context* ctx;
     llama_vocab* vocab;
     llama_sampler* sampler;
-    int prev_len;
+    std::map<int, LlamaContextHolder*> llamaContextHolders;
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converterTo;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converterFrom;
+
+    LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId);
+    void MainCls::talk(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory, LlamaContextHolder* holder,
+                       std::vector<IMessage*>& messageLst);
+    std::string generate(IConfigurationTool* tool, LlamaContextHolder* holder, const std::string& prompt);
 
 public:
     MainCls();
@@ -54,8 +65,6 @@ public:
     void update(IConfigurationTool* tool, IValueFactory* factory) override;
 
     void stop(IConfigurationTool* tool, IValueFactory* factory) override;
-
-    std::string generate(IConfigurationTool* tool, const std::string& prompt);
 
     ~MainCls();
 };

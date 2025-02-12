@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(smcmodules_pub)
+#SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
 
 set(CMAKE_CXX_STANDARD 14)
 #set(BUILD_ARCH "-m64")
@@ -8,6 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories("../SMCModuleDefinitionProvider") # contain SMC c++ provider
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+message("type: " "${CMAKE_BUILD_TYPE}")
 
 if (_WIN64)
     message("arch:" "_WIN64")
