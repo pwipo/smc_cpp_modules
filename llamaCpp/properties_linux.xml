@@ -2,7 +2,7 @@
 <properties>
     <uuid>LlamaCpp</uuid>
     <provider>cpp</provider>
-    <ver>1.0.1</ver>
+    <ver>1.0.2</ver>
     <apiVer>1.4.1</apiVer>
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>
@@ -164,6 +164,7 @@ The program is supplied as is. For problems arising during the operation or inst
 Принимает либо строки, в этом случае считает что их написал пользователь.
 Либо массивы объектов, формат объекта: role, content.
 Ответ возвращает в виде массива объектов с одним объектом. Роль - assistant.
+Использует идентификатор контекста 0.
                     ]]></value>
                 </entry>
                 <entry k="en">
@@ -172,6 +173,7 @@ All incoming messages (in a single action) are combined and sent to the neural n
 Accepts either strings, in which case it considers them to have been written by the user.
 Or arrays of objects, object format: role, content.
 Returns the response as an array of objects with one object. Role - assistant.
+Uses context ID 0.
                     ]]></value>
                 </entry>
             </description>
@@ -195,16 +197,59 @@ Returns the response as an array of objects with one object. Role - assistant.
                 </element>
             </output>
         </type>
-        <type t="clean">
+        <type t="talk" minS="1" maxS="1">
+            <description>
+                <entry k="ru" v="Аналогичен default, но принимает 2 параметра: идентификатор контекста и сообщения. Контекст - это упрощенно отдельная комната для беседы."/>
+                <entry k="en" v="Similar to default, but takes 2 parameters: context id and messages. Context is simply a separate room for a conversation."/>
+            </description>
+            <sources>
+                <source>
+                    <count>1</count>
+                    <elements>
+                        <element t="VALUE_ANY" c="1" vt="INTEGER" v="0">
+                            <description>
+                                <entry k="ru" v="Номер контекст."/>
+                                <entry k="en" v="Context number."/>
+                            </description>
+                        </element>
+                        <element t="VALUE_ANY" c="1" vt="OBJECT_ARRAY">
+                            <description>
+                                <entry k="ru" v="Принимает либо строки, в этом случае считает что их написал пользователь. Либо массивы объектов, формат объекта: role, content."/>
+                                <entry k="en" v="Accepts either strings, in which case it considers them to have been written by the user. Or arrays of objects, object format: role, content."/>
+                            </description>
+                            <value><![CDATA[[{"role":"user","content":"Hello world"}]]]></value>
+                        </element>
+                    </elements>
+                </source>
+            </sources>
+            <output>
+                <element t="VALUE" c="1" vt="OBJECT_ARRAY">
+                    <value><![CDATA[[{"role":"assistant","content":"Hello world!"}]]]></value>
+                </element>
+            </output>
+        </type>
+        <type t="clean" minS="0" maxS="1">
             <description>
                 <entry k="ru">
-                    <value>Очищает контекст (память) сети.</value>
+                    <value>Очищает контекст (память) сети. Если нет входящих данных, то очищает первый контекст, с индексом 0.</value>
                 </entry>
                 <entry k="en">
-                    <value>Clears the network context (memory).</value>
+                    <value>Clears the network context (memory). If there is no incoming data, then clears the first context, with index 0.</value>
                 </entry>
             </description>
-            <sources/>
+            <sources>
+                <source>
+                    <count>1</count>
+                    <elements>
+                        <element t="VALUE_ANY" o="true" c="1" vt="INTEGER" v="0">
+                            <description>
+                                <entry k="ru" v="Номер контекст."/>
+                                <entry k="en" v="Context number."/>
+                            </description>
+                        </element>
+                    </elements>
+                </source>
+            </sources>
             <output/>
         </type>
     </types>
