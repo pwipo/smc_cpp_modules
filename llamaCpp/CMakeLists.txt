@@ -20,20 +20,24 @@ if (${BUILD_TYPE_EXT} STREQUAL "WIN64")
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/llama.lib
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-base.lib
     )
+    set(LIB_FOLDER "win64")
+#    set(LIB_FOLDER "win64_vulkan")
     add_custom_command(
             TARGET ${TARGET}
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/llama.dll" "${CMAKE_CURRENT_BINARY_DIR}/llama.dll"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-base.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.dll"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml.dll"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-cpu.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.dll"
-            #            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/win64/ggml-rpc.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/llama.dll" "${CMAKE_CURRENT_BINARY_DIR}/llama.dll"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/ggml-base.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.dll"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/ggml.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml.dll"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/ggml-cpu.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.dll"
+#            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/ggml-vulkan.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-vulkan.dll"
+            #            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/ggml-rpc.dll" "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${TARGET_MAIN}.smcm" --format=zip --
             "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             "${CMAKE_CURRENT_BINARY_DIR}/llama.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-base.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/ggml-cpu.dll"
+#            "${CMAKE_CURRENT_BINARY_DIR}/ggml-vulkan.dll"
             #            "${CMAKE_CURRENT_BINARY_DIR}/ggml-rpc.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_MAIN}.dll"
     )
@@ -42,14 +46,15 @@ elseif (${BUILD_TYPE_EXT} STREQUAL "LINUX64")
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libllama.so
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml-base.so
     )
+    set(LIB_FOLDER "linux64")
     add_custom_command(
             TARGET ${TARGET}
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/properties_linux.xml" "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libllama.so" "${CMAKE_CURRENT_BINARY_DIR}/libllama.so"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml-base.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-base.so"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml.so"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml-cpu.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-cpu.so"
-            #            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/linux64/libggml-rpc.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-rpc.so"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/libllama.so" "${CMAKE_CURRENT_BINARY_DIR}/libllama.so"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/libggml-base.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-base.so"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/libggml.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml.so"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/libggml-cpu.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-cpu.so"
+            #            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIB_FOLDER}/libggml-rpc.so" "${CMAKE_CURRENT_BINARY_DIR}/libggml-rpc.so"
             COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${TARGET_MAIN}.smcm" --format=zip --
             "${CMAKE_CURRENT_BINARY_DIR}/properties.xml"
             "${CMAKE_CURRENT_BINARY_DIR}/libllama.so"
