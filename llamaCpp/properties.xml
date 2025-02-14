@@ -126,15 +126,15 @@ The program is supplied as is. For problems arising during the operation or inst
         <value>
             <name>nThreds</name>
             <type>INTEGER</type>
-            <value>4</value>
+            <value>0</value>
             <description>
                 <entry>
                     <key>ru</key>
-                    <value>Количество потоков, используемых для генерации.</value>
+                    <value>Количество потоков, используемых для генерации. Если 0, то старается использовать все доступные.</value>
                 </entry>
                 <entry>
                     <key>en</key>
-                    <value>Number of threads to use for generation.</value>
+                    <value>Number of threads to use for generation. If 0, then tries to use all available ones.</value>
                 </entry>
             </description>
         </value>
@@ -150,6 +150,49 @@ The program is supplied as is. For problems arising during the operation or inst
                 <entry>
                     <key>en</key>
                     <value>Whether to use flash attention.</value>
+                </entry>
+            </description>
+        </value>
+        <value>
+            <name>gpu_split_mode</name>
+            <type>INTEGER</type>
+            <value>1</value>
+            <validValues>
+                <value>0</value>
+                <value>1</value>
+                <value>2</value>
+            </validValues>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value><![CDATA[Как разделить модель на несколько графических процессоров. Значения:
+0-не делить,
+1-разделить слои и KV между графическими процессорами,
+2-Разделить слои и KV между графическими процессорами, использовать тензорный параллелизм, если поддерживается.
+                    ]]></value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value><![CDATA[How to split the model across multiple GPUs. Values:
+0-don't split,
+1-split layers and KV across GPUs,
+2-split layers and KV across GPUs, use tensor parallelism if supported.
+                    ]]></value>
+                </entry>
+            </description>
+        </value>
+        <value>
+            <name>main_gpu</name>
+            <type>INTEGER</type>
+            <value>0</value>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Графический процессор, который используется для всей модели, когда gpu_split_mode равен 0.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>The GPU that is used for the entire model when gpu_split_mode is 0.</value>
                 </entry>
             </description>
         </value>

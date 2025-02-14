@@ -24,8 +24,6 @@ void addChatMessage(std::vector<llama_chat_message>& messages, const std::string
 }
 
 void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
-    // tool->loggerTrace(L"start");
-    // tool->loggerTrace(L"start get settings");
     modelPath = *tool->getConfiguration()->getSetting(L"modelPath")->getValueString();
     temperature = tool->getConfiguration()->getSetting(L"temperature")->getValueNumber()->floatValue();
     minP = tool->getConfiguration()->getSetting(L"minP")->getValueNumber()->floatValue();
@@ -34,15 +32,13 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     nBatch = tool->getConfiguration()->getSetting(L"nBatch")->getValueNumber()->intValue();
     nThreds = tool->getConfiguration()->getSetting(L"nThreds")->getValueNumber()->intValue();
     flashAttn = tool->getConfiguration()->getSetting(L"flashAttn")->getValueBoolean();
-    // tool->loggerTrace(L"stop get settings");
+    gpu_split_mode = tool->getConfiguration()->getSetting(L"gpu_split_mode")->getValueNumber()->intValue();
+    main_gpu = tool->getConfiguration()->getSetting(L"main_gpu")->getValueNumber()->intValue();
 
-    // setlocale(LC_ALL, ".UTF-8");
-    // setlocale(LC_CTYPE, ".UTF-8");
-    // tool->loggerTrace(L"LC_ALL=" + converterFrom.from_bytes(setlocale(LC_ALL, NULL)) + L" LC_CTYPE=" + converterFrom.from_bytes(setlocale(LC_CTYPE, NULL)));
-
-    // tool->loggerTrace(L"initialize the model");
     llama_model_params model_params = llama_model_default_params();
     model_params.n_gpu_layers = ngl;
+    model_params.split_mode = static_cast<llama_split_mode>(gpu_split_mode);
+    model_params.main_gpu = main_gpu;
 
     model = nullptr;
     if (modelPath.size() > 2) {
@@ -60,10 +56,8 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     if (nThreds <= 0)
         nThreds = std::thread::hardware_concurrency();
 
-    // tool->loggerTrace(L"get vocab");
     vocab = (llama_vocab*)(void*)llama_model_get_vocab(model);
 
-    // tool->loggerTrace(L"initialize the sampler");
     sampler = llama_sampler_chain_init(llama_sampler_chain_default_params());
     llama_sampler_chain_add(sampler, llama_sampler_init_min_p(minP, 1));
     llama_sampler_chain_add(sampler, llama_sampler_init_temp(temperature));
@@ -329,6 +323,10 @@ MainCls::MainCls() {
     contextSize = 0;
     ngl = 0;
     nBatch = 0;
+    nThreds = 0;
+    flashAttn = false;
+    gpu_split_mode = 0;
+    main_gpu = 0;
 
     model = nullptr;
     // ctx = nullptr;

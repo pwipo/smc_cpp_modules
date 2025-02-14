@@ -41,6 +41,8 @@ class MainCls : public IMethod {
     int nBatch;
     int nThreds;
     bool flashAttn;
+    int gpu_split_mode;
+    int main_gpu;
 
     llama_model* model;
     llama_vocab* vocab;
