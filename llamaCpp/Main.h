@@ -16,6 +16,7 @@
 #include <cstring>
 #include <thread>
 #include <map>
+// #include <fstream>
 
 using namespace SMCApi;
 
@@ -52,9 +53,9 @@ class MainCls : public IMethod {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converterTo;
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converterFrom;
 
-    LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId);
+    LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId, bool init);
     void MainCls::talk(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory, LlamaContextHolder* holder,
-                       std::vector<IMessage*>& messageLst);
+                       std::vector<IMessage*>& messageLst, int start);
     std::string generate(IConfigurationTool* tool, LlamaContextHolder* holder, const std::string& prompt);
 
 public:

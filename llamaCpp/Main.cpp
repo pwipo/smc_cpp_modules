@@ -23,6 +23,21 @@ void addChatMessage(std::vector<llama_chat_message>& messages, const std::string
     messages.push_back({_strdup(role.c_str()), _strdup(message.c_str())});
 }
 
+// bool is_file_exist(const char* fileName) {
+//     std::ifstream infile(fileName);
+//     return infile.good();
+// }
+
+inline bool is_file_exist_2(const std::string& name) {
+    if (FILE* file = fopen(name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     modelPath = *tool->getConfiguration()->getSetting(L"modelPath")->getValueString();
     temperature = tool->getConfiguration()->getSetting(L"temperature")->getValueNumber()->floatValue();
@@ -45,7 +60,8 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
         std::wstring modelPathFull = tool->getWorkDirectory() + separator() + modelPath;
         tool->loggerTrace(L"init model " + modelPathFull);
         std::string modelPathFullStr = converterTo.to_bytes(modelPathFull);
-        model = llama_model_load_from_file(modelPathFullStr.c_str(), model_params);
+        if (is_file_exist_2(modelPathFullStr.c_str()))
+            model = llama_model_load_from_file(modelPathFullStr.c_str(), model_params);
     }
     if (!model) {
         tool->loggerError(L"error: unable to load model");
@@ -64,12 +80,15 @@ void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
     llama_sampler_chain_add(sampler, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 }
 
-LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId) {
+LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId, bool init) {
     if (ctxId < 0)
         throw ModuleException(L"invalid context id");
     auto pos = llamaContextHolders.find(ctxId);
+    LlamaContextHolder* holder = nullptr;
     if (pos != llamaContextHolders.end())
-        return pos->second;
+        holder = pos->second;
+    if (holder != nullptr && (holder->ctx != nullptr || !init))
+        return holder;
 
     // tool->loggerTrace(L"initialize the context");
     llama_context_params ctx_params = llama_context_default_params();
@@ -85,26 +104,19 @@ LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId) {
         errMsg += ": error: failed to create the llama_context";
         throw ModuleException(converterFrom.from_bytes(errMsg));
     }
-    auto holder = new LlamaContextHolder{ctx, 0};
-    llamaContextHolders.insert(std::pair<int, LlamaContextHolder*>(ctxId, holder));
+    if (holder != nullptr && holder->ctx == nullptr)
+        holder->ctx = ctx;
+
+    if (holder == nullptr) {
+        holder = new LlamaContextHolder{ctx, 0};
+        llamaContextHolders.insert(std::pair<int, LlamaContextHolder*>(ctxId, holder));
+    }
     return holder;
 }
 
 void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory) {
-    // configurationTool->loggerTrace(L"start process");
-    // std::locale::global(std::locale(".UTF-8"));
-    // setlocale(LC_ALL, ".UTF-8");
-    // setlocale(LC_CTYPE, ".UTF-8");
     try {
         if (executionContextTool->getExecutionContext()->getType() == L"default") {
-            auto holder = addOrCreateContextHolder(0);
-            for (long i = 0; i < executionContextTool->getExecutionContext()->countSource(); ++i) {
-                auto actions = executionContextTool->getMessages(i);
-                for (IAction* action : *actions)
-                    talk(configurationTool, executionContextTool, factory, holder, *action->getMessages());
-            }
-        }
-        else if (executionContextTool->getExecutionContext()->getType() == L"talk") {
             for (long i = 0; i < executionContextTool->getExecutionContext()->countSource(); ++i) {
                 auto actions = executionContextTool->getMessages(i);
                 for (IAction* action : *actions) {
@@ -113,11 +125,14 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
                         auto message = messages->front();
                         // messages->erase(messages->begin());
                         int ctxId = 0;
-                        if (message->getType() != VT_STRING && message->getType() != VT_OBJECT_ARRAY && message->getType() != VT_BYTES && message->getType() != VT_BOOLEAN)
+                        bool removeFirst = false;
+                        if (message->getType() != VT_STRING && message->getType() != VT_OBJECT_ARRAY && message->getType() != VT_BYTES && message->getType() != VT_BOOLEAN) {
                             ctxId = message->getValueNumber()->intValue();
-                        auto holder = addOrCreateContextHolder(ctxId);
-                        std::vector<IMessage*> newVec(messages->begin() + 1, messages->end());
-                        talk(configurationTool, executionContextTool, factory, holder, newVec);
+                            removeFirst = true;
+                        }
+                        // std::vector<IMessage*> newVec(removeFirst ? messages->begin() + 1 : messages->begin(), messages->end());
+                        auto holder = addOrCreateContextHolder(ctxId, true);
+                        talk(configurationTool, executionContextTool, factory, holder, *messages, removeFirst ? 1 : 0);
                     }
                 }
             }
@@ -135,15 +150,18 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
                     }
                 }
             }
-            auto holder = addOrCreateContextHolder(ctxId);
-            llama_kv_cache_clear(holder->ctx);
+            auto holder = addOrCreateContextHolder(ctxId, false);
+            if (holder->ctx) {
+                llama_kv_cache_clear(holder->ctx);
+                llama_free(holder->ctx);
+                holder->ctx = nullptr;
+            }
             holder->prev_len = 0;
         }
     }
     catch (ModuleException& e) {
         executionContextTool->addError(factory->createData(e.getMessage()));
     }
-    // configurationTool->loggerTrace(L"stop process");
 }
 
 void MainCls::update(IConfigurationTool* tool, IValueFactory* factory) {
@@ -179,15 +197,17 @@ void MainCls::stop(IConfigurationTool* tool, IValueFactory* factory) {
 }
 
 void MainCls::talk(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory,
-                   LlamaContextHolder* holder, std::vector<IMessage*>& messageLst) {
-    if (messageLst.empty())
+                   LlamaContextHolder* holder, std::vector<IMessage*>& messageLst, int start) {
+    if (messageLst.empty() || start >= messageLst.size())
         return;
     std::vector<llama_chat_message> messages;
     std::vector<char> formatted(llama_n_ctx(holder->ctx));
     std::wstring* pResponseContent = nullptr;
     try {
         // configurationTool->loggerTrace(L"start new processing, count messages=" + std::to_wstring(action->getMessages()->size()));
-        for (IMessage* message : messageLst) {
+        // for (IMessage* message : messageLst) {
+        for (int i = start; i < messageLst.size(); i++) {
+            IMessage* message = messageLst[i];
             if (message->getType() == VT_STRING) {
                 std::string contentStr = converterTo.to_bytes(*message->getValueString());
                 addChatMessage(messages, contentStr, "user");
@@ -328,10 +348,10 @@ MainCls::MainCls() {
     gpu_split_mode = 0;
     main_gpu = 0;
 
+    sampler = nullptr;
+    vocab = nullptr;
     model = nullptr;
     // ctx = nullptr;
-    // vocab = nullptr;
-    // sampler = nullptr;
 
     // only print errors
     llama_log_set([](enum ggml_log_level level, const char* text, void* /* user_data */) {

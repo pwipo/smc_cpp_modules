@@ -2,7 +2,7 @@
 <properties>
     <uuid>LlamaCpp</uuid>
     <provider>cpp</provider>
-    <ver>1.0.2</ver>
+    <ver>1.0.4</ver>
     <apiVer>1.4.1</apiVer>
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>
@@ -126,15 +126,15 @@ The program is supplied as is. For problems arising during the operation or inst
         <value>
             <name>nThreds</name>
             <type>INTEGER</type>
-            <value>4</value>
+            <value>0</value>
             <description>
                 <entry>
                     <key>ru</key>
-                    <value>Количество потоков, используемых для генерации.</value>
+                    <value>Количество потоков, используемых для генерации. Если 0, то старается использовать все доступные.</value>
                 </entry>
                 <entry>
                     <key>en</key>
-                    <value>Number of threads to use for generation.</value>
+                    <value>Number of threads to use for generation. If 0, then tries to use all available ones.</value>
                 </entry>
             </description>
         </value>
@@ -153,66 +153,87 @@ The program is supplied as is. For problems arising during the operation or inst
                 </entry>
             </description>
         </value>
+        <value>
+            <name>gpu_split_mode</name>
+            <type>INTEGER</type>
+            <value>1</value>
+            <validValues>
+                <value>0</value>
+                <value>1</value>
+                <value>2</value>
+            </validValues>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value><![CDATA[Как разделить модель на несколько графических процессоров. Значения:
+0-не делить,
+1-разделить слои и KV между графическими процессорами,
+2-Разделить слои и KV между графическими процессорами, использовать тензорный параллелизм, если поддерживается.
+                    ]]></value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value><![CDATA[How to split the model across multiple GPUs. Values:
+0-don't split,
+1-split layers and KV across GPUs,
+2-split layers and KV across GPUs, use tensor parallelism if supported.
+                    ]]></value>
+                </entry>
+            </description>
+        </value>
+        <value>
+            <name>main_gpu</name>
+            <type>INTEGER</type>
+            <value>0</value>
+            <description>
+                <entry>
+                    <key>ru</key>
+                    <value>Графический процессор, который используется для всей модели, когда gpu_split_mode равен 0.</value>
+                </entry>
+                <entry>
+                    <key>en</key>
+                    <value>The GPU that is used for the entire model when gpu_split_mode is 0.</value>
+                </entry>
+            </description>
+        </value>
     </defaultSettings>
 
     <types>
-        <type t="default" minS="1" maxS="-1">
+        <type t="default" minS="1" maxS="1">
             <description>
                 <entry k="ru">
                     <value><![CDATA[Отвечает на входящие сообщения.
-Все входящие сообщения (в обном действии) объединяет и направляет нейронке для обработки.
-Принимает либо строки, в этом случае считает что их написал пользователь.
-Либо массивы объектов, формат объекта: role, content.
+Входящие сообщения:
+    если первым сообщением является число, то рассматривает его как идентификатор контекста. Контекст - это, упрощенно, отдельная комната для беседы. Если отсутствует, то использует идентификатор контекста 0.
+    все остальные сообщения, рассматривает как история разговора, формат:
+        если строка - считает что их написал пользователь.
+        если массив объектов, формат объекта: role, content.
 Ответ возвращает в виде массива объектов с одним объектом. Роль - assistant.
-Использует идентификатор контекста 0.
+
                     ]]></value>
                 </entry>
                 <entry k="en">
                     <value><![CDATA[Responds to incoming messages.
-All incoming messages (in a single action) are combined and sent to the neural network for processing.
-Accepts either strings, in which case it considers them to have been written by the user.
-Or arrays of objects, object format: role, content.
-Returns the response as an array of objects with one object. Role - assistant.
-Uses context ID 0.
+Incoming messages:
+    if the first message is a number, then it is considered as a context identifier. Context is, in simple terms, a separate room for a conversation. If it is absent, then it uses the context identifier 0.
+    all other messages are considered as a conversation history, format:
+        if a string, then it is considered that they were written by the user.
+        if an array of objects, the object format is: role, content.
+The response is returned as an array of objects with one object. The role is assistant.
                     ]]></value>
                 </entry>
-            </description>
-            <sources>
-                <source>
-                    <count>-1</count>
-                    <elements>
-                        <element t="VALUE_ANY" c="-1" vt="OBJECT_ARRAY">
-                            <description>
-                                <entry k="ru" v="Принимает либо строки, в этом случае считает что их написал пользователь. Либо массивы объектов, формат объекта: role, content."/>
-                                <entry k="en" v="Accepts either strings, in which case it considers them to have been written by the user. Or arrays of objects, object format: role, content."/>
-                            </description>
-                            <value><![CDATA[[{"role":"user","content":"Hello world"}]]]></value>
-                        </element>
-                    </elements>
-                </source>
-            </sources>
-            <output>
-                <element t="VALUE" c="1" vt="OBJECT_ARRAY">
-                    <value><![CDATA[[{"role":"assistant","content":"Hello world!"}]]]></value>
-                </element>
-            </output>
-        </type>
-        <type t="talk" minS="1" maxS="1">
-            <description>
-                <entry k="ru" v="Аналогичен default, но принимает 2 параметра: идентификатор контекста и сообщения. Контекст - это упрощенно отдельная комната для беседы."/>
-                <entry k="en" v="Similar to default, but takes 2 parameters: context id and messages. Context is simply a separate room for a conversation."/>
             </description>
             <sources>
                 <source>
                     <count>1</count>
                     <elements>
-                        <element t="VALUE_ANY" c="1" vt="INTEGER" v="0">
+                        <element t="VALUE_ANY" o="true" c="1" vt="INTEGER" v="0">
                             <description>
-                                <entry k="ru" v="Номер контекст."/>
-                                <entry k="en" v="Context number."/>
+                                <entry k="ru" v="идентификатор контекста. Контекст - это упрощенно отдельная комната для беседы."/>
+                                <entry k="en" v="context id. Context is simply a separate room for a conversation."/>
                             </description>
                         </element>
-                        <element t="VALUE_ANY" c="1" vt="OBJECT_ARRAY">
+                        <element t="VALUE_ANY" c="-1" vt="OBJECT_ARRAY">
                             <description>
                                 <entry k="ru" v="Принимает либо строки, в этом случае считает что их написал пользователь. Либо массивы объектов, формат объекта: role, content."/>
                                 <entry k="en" v="Accepts either strings, in which case it considers them to have been written by the user. Or arrays of objects, object format: role, content."/>
