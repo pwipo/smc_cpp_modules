@@ -153,10 +153,33 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
             auto holder = addOrCreateContextHolder(ctxId, false);
             if (holder->ctx) {
                 llama_kv_cache_clear(holder->ctx);
+                // llama_free(holder->ctx);
+                // holder->ctx = nullptr;
+            }
+            holder->prev_len = 0;
+        }
+        else if (executionContextTool->getExecutionContext()->getType() == L"remove") {
+            int ctxId = 0;
+            if (executionContextTool->getExecutionContext()->countSource() > 0) {
+                auto actions = executionContextTool->getMessages(0);
+                if (actions && !actions->empty()) {
+                    auto messages = actions->at(actions->size() - 1)->getMessages();
+                    if (messages && !messages->empty()) {
+                        auto message = messages->at(0);
+                        if (message->getType() != VT_STRING && message->getType() != VT_OBJECT_ARRAY && message->getType() != VT_BYTES && message->getType() != VT_BOOLEAN)
+                            ctxId = message->getValueNumber()->intValue();
+                    }
+                }
+            }
+            auto holder = addOrCreateContextHolder(ctxId, false);
+            if (holder->ctx) {
+                llama_kv_cache_clear(holder->ctx);
                 llama_free(holder->ctx);
                 holder->ctx = nullptr;
             }
             holder->prev_len = 0;
+            delete holder;
+            llamaContextHolders.erase(ctxId);
         }
     }
     catch (ModuleException& e) {
