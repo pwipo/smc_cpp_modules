@@ -23,6 +23,15 @@ void addChatMessage(std::vector<llama_chat_message>& messages, const std::string
     messages.push_back({_strdup(role.c_str()), _strdup(message.c_str())});
 }
 
+void cleanHolder(LlamaContextHolder* holder) {
+    if (!holder)
+        return;
+    holder->messages.clear();
+    holder->prev_len = 0;
+    if (holder->ctx)
+        llama_kv_cache_clear(holder->ctx);
+}
+
 // bool is_file_exist(const char* fileName) {
 //     std::ifstream infile(fileName);
 //     return infile.good();
@@ -116,7 +125,7 @@ LlamaContextHolder* MainCls::addOrCreateContextHolder(int ctxId, bool init) {
 
 void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory) {
     try {
-        if (executionContextTool->getExecutionContext()->getType() == L"default") {
+        if (executionContextTool->getExecutionContext()->getType() == L"default" || executionContextTool->getExecutionContext()->getType() == L"talk") {
             for (long i = 0; i < executionContextTool->getExecutionContext()->countSource(); ++i) {
                 auto actions = executionContextTool->getMessages(i);
                 for (IAction* action : *actions) {
@@ -132,6 +141,10 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
                         }
                         // std::vector<IMessage*> newVec(removeFirst ? messages->begin() + 1 : messages->begin(), messages->end());
                         auto holder = addOrCreateContextHolder(ctxId, true);
+                        if (executionContextTool->getExecutionContext()->getType() == L"talk") {
+                            holder->messages.clear();
+                            holder->prev_len = 0;
+                        }
                         talk(configurationTool, executionContextTool, factory, holder, *messages, removeFirst ? 1 : 0);
                     }
                 }
@@ -151,12 +164,7 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
                 }
             }
             auto holder = addOrCreateContextHolder(ctxId, false);
-            if (holder->ctx) {
-                llama_kv_cache_clear(holder->ctx);
-                // llama_free(holder->ctx);
-                // holder->ctx = nullptr;
-            }
-            holder->prev_len = 0;
+            cleanHolder(holder);
         }
         else if (executionContextTool->getExecutionContext()->getType() == L"remove") {
             int ctxId = 0;
@@ -172,12 +180,11 @@ void MainCls::process(IConfigurationTool* configurationTool, IExecutionContextTo
                 }
             }
             auto holder = addOrCreateContextHolder(ctxId, false);
+            cleanHolder(holder);
             if (holder->ctx) {
-                llama_kv_cache_clear(holder->ctx);
                 llama_free(holder->ctx);
                 holder->ctx = nullptr;
             }
-            holder->prev_len = 0;
             delete holder;
             llamaContextHolders.erase(ctxId);
         }
@@ -197,8 +204,8 @@ void MainCls::stop(IConfigurationTool* tool, IValueFactory* factory) {
     for (auto it = llamaContextHolders.begin(); it != llamaContextHolders.end(); ++it) {
         // auto holder = llamaContextHolders[i];
         auto holder = it->second;
+        cleanHolder(holder);
         if (holder->ctx) {
-            llama_kv_cache_clear(holder->ctx);
             llama_free(holder->ctx);
             holder->ctx = nullptr;
         }
@@ -251,6 +258,22 @@ void MainCls::talk(IConfigurationTool* configurationTool, IExecutionContextTool*
                 }
             }
         }
+        bool isSameReq = false;
+        if (messages.size() >= holder->messages.size()) {
+            isSameReq = true;
+            for (int i = 0; i < holder->messages.size(); ++i) {
+                std::string str = messages[i].content;
+                if (holder->messages[i] != str) {
+                    isSameReq = false;
+                    break;
+                }
+            }
+        }
+        if (!isSameReq) {
+            configurationTool->loggerDebug(L"it was determined that this is a new request " + std::to_wstring(holder->prev_len));
+            cleanHolder(holder);
+        }
+
         // configurationTool->loggerTrace(L"messages size=" + std::to_wstring(messages.size()));
         const char* tmpl = llama_model_chat_template(model, /* name */ nullptr);
         int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
@@ -262,16 +285,17 @@ void MainCls::talk(IConfigurationTool* configurationTool, IExecutionContextTool*
             throw ModuleException(L"failed to apply the chat template");
         if (new_len < holder->prev_len) {
             configurationTool->loggerDebug(L"detect new messages, clean context cache " + std::to_wstring(new_len) + L" " + std::to_wstring(holder->prev_len));
-            holder->prev_len = 0;
-            llama_kv_cache_clear(holder->ctx);
+            cleanHolder(holder);
         }
+
+        holder->messages.clear();
+        for (auto& m : messages)
+            holder->messages.push_back(m.content);
+
         if (holder->prev_len == new_len)
             return;
 
-        // configurationTool->loggerTrace(L"new_len=" + std::to_wstring(new_len));
-        // remove previous messages to obtain the prompt to generate the response
         std::string prompt(formatted.begin() + holder->prev_len, formatted.begin() + new_len);
-
         // configurationTool->loggerTrace(L"get request: " + converterFrom.from_bytes(prompt));
         std::string response = generate(configurationTool, holder, prompt);
 

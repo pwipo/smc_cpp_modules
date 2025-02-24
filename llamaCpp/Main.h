@@ -31,6 +31,7 @@ inline wchar_t separator() {
 struct LlamaContextHolder {
     llama_context* ctx;
     int prev_len;
+    std::vector<std::string> messages;
 };
 
 class MainCls : public IMethod {
