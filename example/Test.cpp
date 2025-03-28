@@ -7,8 +7,8 @@
 void Test::start(IConfigurationTool* tool, IValueFactory* factory) {
     // get settings
     //std::cout << "Test START" << std::endl;
-    value = *tool->getConfiguration()->getSetting(L"value")->getValueString();
-    param = *tool->getConfiguration()->getSetting(L"param")->getValueString();
+    value = *tool->getSetting(L"value")->getValueString();
+    param = *tool->getSetting(L"param")->getValueString();
     counter = 1;
     //std::cout << "Test END" << std::endl;
 
@@ -40,9 +40,8 @@ void Test::start(IConfigurationTool* tool, IValueFactory* factory) {
             break;
         }
     }
-    if (fileTextValue.empty()) {
+    if (fileTextValue.empty())
         throw ModuleException(L"file text.txt not exist");
-    }
 }
 
 void Test::process(IConfigurationTool* configurationTool, IExecutionContextTool* executionContextTool, IValueFactory* factory) {

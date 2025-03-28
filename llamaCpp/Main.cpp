@@ -48,16 +48,16 @@ inline bool is_file_exist_2(const std::string& name) {
 }
 
 void MainCls::start(IConfigurationTool* tool, IValueFactory* factory) {
-    modelPath = *tool->getConfiguration()->getSetting(L"modelPath")->getValueString();
-    temperature = tool->getConfiguration()->getSetting(L"temperature")->getValueNumber()->floatValue();
-    minP = tool->getConfiguration()->getSetting(L"minP")->getValueNumber()->floatValue();
-    contextSize = tool->getConfiguration()->getSetting(L"contextSize")->getValueNumber()->intValue();
-    ngl = tool->getConfiguration()->getSetting(L"ngl")->getValueNumber()->intValue();
-    nBatch = tool->getConfiguration()->getSetting(L"nBatch")->getValueNumber()->intValue();
-    nThreds = tool->getConfiguration()->getSetting(L"nThreds")->getValueNumber()->intValue();
-    flashAttn = tool->getConfiguration()->getSetting(L"flashAttn")->getValueBoolean();
-    gpu_split_mode = tool->getConfiguration()->getSetting(L"gpu_split_mode")->getValueNumber()->intValue();
-    main_gpu = tool->getConfiguration()->getSetting(L"main_gpu")->getValueNumber()->intValue();
+    modelPath = *tool->getSetting(L"modelPath")->getValueString();
+    temperature = tool->getSetting(L"temperature")->getValueNumber()->floatValue();
+    minP = tool->getSetting(L"minP")->getValueNumber()->floatValue();
+    contextSize = tool->getSetting(L"contextSize")->getValueNumber()->intValue();
+    ngl = tool->getSetting(L"ngl")->getValueNumber()->intValue();
+    nBatch = tool->getSetting(L"nBatch")->getValueNumber()->intValue();
+    nThreds = tool->getSetting(L"nThreds")->getValueNumber()->intValue();
+    flashAttn = tool->getSetting(L"flashAttn")->getValueBoolean();
+    gpu_split_mode = tool->getSetting(L"gpu_split_mode")->getValueNumber()->intValue();
+    main_gpu = tool->getSetting(L"main_gpu")->getValueNumber()->intValue();
 
     llama_model_params model_params = llama_model_default_params();
     model_params.n_gpu_layers = ngl;

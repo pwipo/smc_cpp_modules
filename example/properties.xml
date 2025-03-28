@@ -3,8 +3,8 @@
 
     <uuid>ExampleCpp</uuid>
     <provider>cpp</provider>
-    <ver>1.1.1</ver>
-    <apiVer>1.4.0</apiVer>
+    <ver>1.1.2</ver>
+    <apiVer>1.4.2</apiVer>
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>
     <homePage>http://www.smcsystem.ru</homePage>
@@ -109,6 +109,8 @@ The program is supplied as is. For problems arising during the operation or inst
 
     <useStorage>false</useStorage>
     <threadSafe>true</threadSafe>
+    <useVariables>false</useVariables>
+    <useManagement>true</useManagement>
 
     <description>
         <entry>
