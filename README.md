@@ -5,7 +5,7 @@
 install:
 
     jdk 11
-    Visual Studio Community 2019 or high
+    Visual Studio Community 2019
     cmake
 
 Prepare and Compile:
