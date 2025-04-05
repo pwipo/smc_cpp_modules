@@ -2,7 +2,7 @@
 <properties>
     <uuid>LlamaCpp</uuid>
     <provider>cpp</provider>
-    <ver>1.0.7</ver>
+    <ver>1.0.8</ver>
     <apiVer>1.4.2</apiVer>
     <author>Nikolay V. Ulyanov</author>
     <contacts>ulianownv@mail.ru</contacts>

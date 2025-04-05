@@ -41,7 +41,7 @@ Prepare and Compile:
     cd modules_pub
     --check exist lib ../SMCModuleDefinitionProvider/Linux64/ModuleLoaderProviderLINUX64.so
     mkdir build
-    cmake -B build -DBUILD_TYPE_EXT=LINUX64 ..
+    cmake -B build -DBUILD_TYPE_EXT=LINUX64
     cmake --build build --config Release --target Example          #or: make Example
     cmake --build build --target Example_SMCM     #or: make Example_SMCM
     cp build/example/ExampleCpp.smcm Linux64/for_centos/ExampleCpp.smcm
